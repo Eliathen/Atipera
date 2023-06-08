@@ -1,0 +1,8 @@
+server:
+  servlet:
+    context-path: /api/v1
+
+github:
+  base-url: "https://api.github.com"
+  repositories: "/users/{username}/repos"
+  branches: "/repos/{username}/{repositoryName}/branches"
