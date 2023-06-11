@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 class RepositoryController(private val repositoryService: RepositoryService) {
 
     @GetMapping
-    fun getRepositories(
+    suspend fun getRepositories(
         @RequestHeader(name = "Accept", defaultValue = "application/json") acceptHeader: String,
         @RequestParam(
             name = "username"
@@ -23,5 +23,4 @@ class RepositoryController(private val repositoryService: RepositoryService) {
         val response = repositoryService.getRepositories(username)
         return ResponseEntity.ok(response)
     }
-
 }

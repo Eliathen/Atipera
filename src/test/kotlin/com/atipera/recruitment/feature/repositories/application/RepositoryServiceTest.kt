@@ -7,13 +7,16 @@ import com.atipera.recruitment.feature.repositories.domain.Repository
 import com.atipera.recruitment.feature.repositories.git.port.GitRepositories
 import com.atipera.recruitment.feature.repositories.web.response.RepositoryResponse
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest
-class RepositoryServiceTest() {
+class RepositoryServiceTest {
 
     @Autowired
     private lateinit var sut: RepositoryService
@@ -21,25 +24,26 @@ class RepositoryServiceTest() {
     @MockkBean
     private lateinit var gitRepositories: GitRepositories
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `given list with one repository which is fork should return empty list`() {
+    fun `given list with one repository which is fork should return empty list`() = runTest {
         val repository = getRepositoryWithFork()
         val username = "Eliathen"
-        every { gitRepositories.getRepositoriesForUser(username) } returns listOf(repository)
+        coEvery { gitRepositories.getRepositoriesForUser(username) } returns listOf(repository)
         val result: List<RepositoryResponse> = sut.getRepositories(username)
 
         assert(result.isEmpty())
     }
 
     @Test
-    fun `given username should return list of repositories with branches`() {
+    fun `given username should return list of repositories with branches`() = runTest {
         //given
         val repository = getRepository()
         val username = "Eliathen"
-        every { gitRepositories.getRepositoriesForUser(username) } returns listOf(repository)
+        coEvery { gitRepositories.getRepositoriesForUser(username) } returns listOf(repository)
 
         val branch = getBranch()
-        every { gitRepositories.getBranchesForUserRepository(username, repository.name) } returns listOf(branch)
+        coEvery { gitRepositories.getBranchesForUserRepository(username, repository.name) } returns listOf(branch)
 
         //when
         val result: List<RepositoryResponse> = sut.getRepositories(username)

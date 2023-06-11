@@ -5,66 +5,71 @@ import com.atipera.recruitment.feature.repositories.exception.UsernameNotFound
 import com.atipera.recruitment.feature.repositories.web.response.BranchResponse
 import com.atipera.recruitment.feature.repositories.web.response.RepositoryResponse
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
+import io.mockk.coEvery
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.reactive.server.WebTestClient
 
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @WebMvcTest(controllers = [RepositoryController::class])
-class RepositoryControllerTest(
-    @Autowired private val mockMvc: MockMvc,
-) {
+class RepositoryControllerTest {
+
     @MockkBean
     private lateinit var repositoryService: RepositoryService
+
+    @Autowired
+    private lateinit var webTestClient: WebTestClient
 
     @Test
     fun `given wrong accept header should return 406`() {
         //given & when & then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/repositories?username=Eliathen")
-                .header("Accept", MediaType.APPLICATION_XML_VALUE)
-        )
-            .andExpect(MockMvcResultMatchers.status().isNotAcceptable)
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+        webTestClient.get()
+            .uri("/repositories?username=Eliathen")
+            .header("Accept", MediaType.APPLICATION_XML_VALUE)
+            .exchange()
+            .expectStatus().isEqualTo(HttpStatus.NOT_ACCEPTABLE)
     }
 
     @Test
-    fun `given correct accept header should return 200`() {
+    fun `given correct accept header should return 200`() = runTest {
         //given
-        every { repositoryService.getRepositories(any()) } returns listOf(getRepositoryResponse())
+        coEvery { repositoryService.getRepositories(any()) } returns listOf(getRepositoryResponse())
         //when & then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/repositories?username=Eliathen")
-                .header("Accept", MediaType.APPLICATION_JSON_VALUE)
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+
+        webTestClient.get()
+            .uri("/repositories?username=Eliathen")
+            .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+            .exchange()
+            .expectStatus().isOk
     }
 
     @Test
-    fun `given not existing username should return 404`() {
+    fun `given not existing username should return 404`() = runTest {
         //given
-        every { repositoryService.getRepositories(any()) } throws UsernameNotFound("Username not found")
+        coEvery { repositoryService.getRepositories(any()) } throws UsernameNotFound("Username not found")
         //when & then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/repositories?username=Eliathen")
-        )
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+        webTestClient.get()
+            .uri("/repositories?username=Eliathen")
+            .exchange()
+            .expectStatus().isNotFound
     }
 
     @Test
-    fun `given existing username should return 200`() {
+    fun `given existing username should return 200`() = runTest {
         //given
-        every { repositoryService.getRepositories(any()) } returns listOf(getRepositoryResponse())
+        coEvery { repositoryService.getRepositories(any()) } returns listOf(getRepositoryResponse())
         //when & then
-        mockMvc.perform(
-            MockMvcRequestBuilders.get("/repositories?username=Eliathen")
-        )
-            .andExpect(MockMvcResultMatchers.status().isOk)
+        webTestClient.get()
+            .uri("/repositories?username=Eliathen")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(Array<RepositoryResponse>::class.java)
     }
 
     private fun getRepositoryResponse() = RepositoryResponse(

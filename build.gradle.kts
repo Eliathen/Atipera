@@ -20,6 +20,14 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+// https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactor
+	runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
+
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+	testImplementation("com.squareup.okhttp3:mockwebserver:4.11.0")
+	testImplementation("com.squareup.okhttp3:okhttp:4.11.0")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
