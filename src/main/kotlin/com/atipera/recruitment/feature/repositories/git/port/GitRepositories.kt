@@ -5,7 +5,7 @@ import com.atipera.recruitment.feature.repositories.domain.Repository
 
 interface GitRepositories {
 
-    fun getRepositoriesForUser(username: String): List<Repository>
+    suspend fun getRepositoriesForUser(username: String): List<Repository>
 
-    fun getBranchesForUserRepository(username: String, repositoryName: String): List<Branch>
+    suspend fun getBranchesForUserRepository(username: String, repositoryName: String): List<Branch>
 }
